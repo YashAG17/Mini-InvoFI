@@ -5,9 +5,7 @@ import "forge-std/Script.sol";
 import "../src/InvoiceFactoring.sol";
 
 contract Deploy is Script {
-
     function run() external {
-
         vm.startBroadcast();
 
         new InvoiceFactoring();

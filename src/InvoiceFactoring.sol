@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 contract InvoiceFactoring {
-
     struct Invoice {
         address supplier;
         address buyer;
@@ -29,31 +28,21 @@ contract InvoiceFactoring {
     event InvoicePaid(uint256 invoiceId);
 
     function createInvoice(address _buyer, uint256 _amount) public {
-
         invoiceCount++;
 
-        invoices[invoiceCount] = Invoice({
-            supplier: msg.sender,
-            buyer: _buyer,
-            amount: _amount,
-            fundedAmount: 0,
-            paid: false
-        });
+        invoices[invoiceCount] =
+            Invoice({supplier: msg.sender, buyer: _buyer, amount: _amount, fundedAmount: 0, paid: false});
 
         emit InvoiceCreated(invoiceCount, msg.sender, _amount);
     }
 
     function invest(uint256 invoiceId) public payable {
-
         Invoice storage invoice = invoices[invoiceId];
 
         require(!invoice.paid, "Invoice already paid");
 
         // FIX 1: prevent overfunding
-        require(
-            invoice.fundedAmount + msg.value <= invoice.amount,
-            "Investment exceeds invoice amount"
-        );
+        require(invoice.fundedAmount + msg.value <= invoice.amount, "Investment exceeds invoice amount");
 
         investments[invoiceId][msg.sender] += msg.value;
         invoice.fundedAmount += msg.value;
@@ -70,7 +59,6 @@ contract InvoiceFactoring {
     }
 
     function payInvoice(uint256 invoiceId) public payable {
-
         Invoice storage invoice = invoices[invoiceId];
 
         require(msg.sender == invoice.buyer, "Not buyer");
@@ -81,12 +69,11 @@ contract InvoiceFactoring {
 
         address[] memory invs = investors[invoiceId];
 
-        for (uint i = 0; i < invs.length; i++) {
-
+        for (uint256 i = 0; i < invs.length; i++) {
             address investor = invs[i];
-            uint investment = investments[invoiceId][investor];
+            uint256 investment = investments[invoiceId][investor];
 
-            uint share = (msg.value * investment) / invoice.fundedAmount;
+            uint256 share = (msg.value * investment) / invoice.fundedAmount;
 
             payable(investor).transfer(share);
         }
